@@ -165,7 +165,12 @@ export default function Home() {
 
         {/* HOME */}
         {tab === "home" && (
-          <motion.div className="card space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="card space-y-4"
+          >
             <h2 className="text-3xl font-bold">Welcome to NomadGo</h2>
             <p className="text-white/70">AI travel explorer for Kazakhstan.</p>
           </motion.div>
@@ -173,19 +178,31 @@ export default function Home() {
 
         {/* EXPLORE */}
         {tab === "explore" && (
-          <div className="grid md:grid-cols-2 gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="grid md:grid-cols-2 gap-4"
+          >
             {PLACES.map((p, i) => (
               <motion.div
                 key={i}
                 className="card cursor-pointer"
                 onClick={() => setOpened(opened === p.name ? null : p.name)}
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 180, damping: 18 }}
               >
                 <h3 className="text-xl font-semibold">{p.name}</h3>
                 <p className="text-white/60">{p.desc}</p>
                 <p className="text-white/30 text-xs mt-2">Open details</p>
 
                 {opened === p.name && (
-                  <motion.div className="mt-4 space-y-2">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="mt-4 space-y-2"
+                  >
                     <p className="text-white/70 text-sm">{p.bio}</p>
                     {p.facts.map((f, idx) => (
                       <p key={idx} className="text-white/60 text-sm">
@@ -196,21 +213,25 @@ export default function Home() {
                 )}
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {/* CHAT */}
         {tab === "chat" && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            key="chat"
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
             className="card space-y-6"
           >
             <div className="space-y-4">
               {messages.map((message, index) => (
-                <div
+                <motion.div
                   key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.28, delay: index * 0.02 }}
                   className={`rounded-2xl p-4 max-w-[90%] ${
                     message.role === "bot"
                       ? "bg-white/10 border border-white/10"
@@ -220,19 +241,20 @@ export default function Home() {
                   <p className={message.role === "bot" ? "text-white/90" : "text-white"}>
                     {message.text}
                   </p>
-                </div>
+                </motion.div>
               ))}
             </div>
 
-            <div className="grid gap-2 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               {CHAT_OPTIONS.map((option) => (
-                <button
+                <motion.button
                   key={option}
                   onClick={() => handleOption(option)}
-                  className="btn text-sm text-white/90"
+                  className="btn chat-button text-sm text-white/90"
+                  whileHover={{ scale: 1.02 }}
                 >
                   {option}
-                </button>
+                </motion.button>
               ))}
             </div>
 
@@ -246,14 +268,14 @@ export default function Home() {
                 placeholder="Напишите вопрос здесь..."
                 className="flex-1 rounded-2xl border border-white/10 bg-[#0f0f0f] px-4 py-3 text-white outline-none focus:border-white/30"
               />
-              <button onClick={handleSend} className="btn">
+              <motion.button
+                onClick={handleSend}
+                className="btn chat-button"
+                whileTap={{ scale: 0.98 }}
+              >
                 Send
-              </button>
+              </motion.button>
             </div>
-
-            <p className="text-xs text-white/50">
-              Бесплатный режим: встроенные ответы активны, если внешняя AI-служба недоступна.
-            </p>
           </motion.div>
         )}
       </div>
