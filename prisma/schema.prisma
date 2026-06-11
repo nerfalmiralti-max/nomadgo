@@ -6,3 +6,34 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Tourist {
+  id        String   @id @default(cuid())
+  name      String?
+  country   String?
+  createdAt DateTime @default(now())
+
+  visits Visit[]
+}
+
+model Place {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  lat         Float
+  lng         Float
+  image       String?
+  createdAt   DateTime @default(now())
+
+  visits Visit[]
+}
+
+model Visit {
+  id        String   @id @default(cuid())
+  touristId String
+  placeId   String
+  createdAt DateTime @default(now())
+
+  tourist Tourist @relation(fields: [touristId], references: [id], onDelete: Cascade)
+  place   Place   @relation(fields: [placeId], references: [id], onDelete: Cascade)
+}

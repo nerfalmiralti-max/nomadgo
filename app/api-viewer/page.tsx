@@ -1,15 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+
+type Place = {
+  id: string;
+  name: string;
+};
+
+type Tourist = {
+  id: string;
+  name: string | null;
+};
+
+type Visit = {
+  id: string;
+};
 
 export default function ApiViewer() {
-  const router = useRouter();
-
-  const [places, setPlaces] = useState<any[]>([]);
-  const [tourists, setTourists] = useState<any[]>([]);
-  const [visits, setVisits] = useState<any[]>([]);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [tourists, setTourists] = useState<Tourist[]>([]);
+  const [visits, setVisits] = useState<Visit[]>([]);
 
   useEffect(() => {
     fetch("/api/places").then(r => r.json()).then(setPlaces);
@@ -63,12 +75,12 @@ export default function ApiViewer() {
       </div>
 
       <div className="mt-10">
-        <button
-          onClick={() => router.push("/")}
+        <Link
+          href="/"
           className="text-white/40 hover:text-white"
         >
           ← Back to Home
-        </button>
+        </Link>
       </div>
 
     </div>

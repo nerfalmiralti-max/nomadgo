@@ -1,11 +1,25 @@
 "use client";
 
+import { useState } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import AnimatedHero from "../../components/AnimatedHero";
-import AnimatedTitle from "../../components/AnimatedTitle";
-import { ROUTES } from "../../lib/siteData";
+import AnimatedHero from "@/components/AnimatedHero";
+import AnimatedTitle from "@/components/AnimatedTitle";
+import RoutePlanner from "@/components/RoutePlanner";
+import { ROUTES } from "@/lib/siteData";
+
+const Map = dynamic(() => import("@/components/Map"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[520px] items-center justify-center rounded-[22px] border border-white/10 bg-white/5 text-white/50">
+      Loading map...
+    </div>
+  ),
+});
 
 export default function RoutesPage() {
+  const [mapRouteIds, setMapRouteIds] = useState<string[]>(ROUTES[0].placeIds);
+
   return (
     <div className="relative min-h-screen bg-[#070707] text-white">
       <AnimatedHero activeTab="routes" />
@@ -17,22 +31,18 @@ export default function RoutesPage() {
           transition={{ duration: 0.35, ease: "easeOut" }}
           className="space-y-10"
         >
-          <AnimatedTitle text="Routes" className="text-3xl md:text-4xl" />
-          <div className="grid gap-5 md:grid-cols-2">
-            {ROUTES.map((route) => (
-              <motion.div
-                key={route.title}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -3 }}
-                transition={{ type: "spring", stiffness: 160, damping: 20 }}
-                className="glass-card p-6"
-              >
-                <p className="text-sm uppercase tracking-[0.24em] text-white/40">Route</p>
-                <h3 className="mt-3 text-2xl font-semibold">{route.title}</h3>
-                <p className="mt-3 leading-7 text-white/70">{route.description}</p>
-              </motion.div>
-            ))}
+          <div className="space-y-3">
+            <AnimatedTitle text="Routes" className="text-3xl md:text-4xl" />
+            <p className="max-w-3xl leading-8 text-white/70">
+              Generate a route to Kazakhstan attractions by trip length, travel pace and
+              interest, then preview the path directly on the built-in map.
+            </p>
+          </div>
+
+          <RoutePlanner onRouteChange={setMapRouteIds} />
+
+          <div className="glass-card p-4">
+            <Map routePlaceIds={mapRouteIds} />
           </div>
         </motion.section>
       </main>

@@ -1,116 +1,140 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import AnimatedHero from "@/components/AnimatedHero";
+import AnimatedTitle from "@/components/AnimatedTitle";
+import { PLACES, ROUTES } from "@/lib/siteData";
 
-type Place = {
-  id: string;
-  name: string;
-  description?: string;
-};
+const Map = dynamic(() => import("@/components/Map"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[520px] items-center justify-center rounded-[22px] border border-white/10 bg-white/5 text-white/50">
+      Loading map...
+    </div>
+  ),
+});
 
 export default function ExplorePage() {
-  const router = useRouter();
+  const allPlaceIds = PLACES.map((place) => place.id);
+  const [activeRouteIds, setActiveRouteIds] = useState<string[]>(allPlaceIds);
+  const [focusedPlaceId, setFocusedPlaceId] = useState<string>(PLACES[0].id);
+  const showAllConnections = activeRouteIds.length === allPlaceIds.length;
 
-  const [places, setPlaces] = useState<Place[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingVisit, setLoadingVisit] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/places");
-        const data = await res.json();
-        setPlaces(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    load();
-  }, []);
-
-  const visitPlace = async (placeId: string) => {
-    try {
-      setLoadingVisit(placeId);
-
-      await fetch("/api/visits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          touristId: "demo-user",
-          placeId,
-        }),
-      });
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingVisit(null);
-    }
+  const selectRoute = (placeIds: string[]) => {
+    setActiveRouteIds(placeIds);
+    setFocusedPlaceId(placeIds[0] ?? PLACES[0].id);
   };
 
   return (
-    <div className="min-h-screen bg-[#070707] text-white">
-      {/* HEADER */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="px-6 pt-10"
-      >
-        <h1 className="text-4xl font-bold">Explore Mangystau 🌍</h1>
-        <p className="text-white/50 mt-2">
-          Discover real destinations across Kazakhstan
-        </p>
-      </motion.div>
+    <div className="relative min-h-screen bg-[#070707] text-white">
+      <AnimatedHero activeTab="explore" />
 
-      {/* CONTENT */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5 mt-6"
-      >
-        {loading ? (
-          <p className="text-white/50">Loading places...</p>
-        ) : (
-          places.map((place, i) => (
-            <motion.div
-              key={place.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="glass-card p-5 rounded-2xl border border-white/10 hover:scale-[1.03] transition"
-            >
-              <h2 className="text-xl font-semibold">{place.name}</h2>
+      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="space-y-10"
+        >
+          <div className="space-y-3">
+            <AnimatedTitle text="Explore" className="text-3xl md:text-4xl" />
+            <p className="max-w-3xl leading-8 text-white/70">
+              Open Kazakhstan on an interactive map, scan every attraction path, then focus
+              any route or destination before building your final plan.
+            </p>
+          </div>
 
-              <p className="text-white/60 text-sm mt-2">
-                {place.description || "No description available"}
+          <div className="grid gap-5 xl:grid-cols-[1.4fr_0.8fr]">
+            <div className="glass-card p-4">
+              <Map
+                routePlaceIds={activeRouteIds}
+                focusedPlaceId={focusedPlaceId}
+                showAllConnections={showAllConnections}
+              />
+            </div>
+
+            <div className="glass-card p-6">
+              <p className="text-sm uppercase tracking-[0.24em] text-white/40">Route paths</p>
+              <h3 className="mt-3 text-2xl font-semibold">Map network</h3>
+              <p className="mt-3 text-sm leading-6 text-white/55">
+                Switch between the full attraction network and ready travel paths.
               </p>
 
-              <button
-                onClick={() => visitPlace(place.id)}
-                disabled={loadingVisit === place.id}
-                className="mt-4 w-full bg-white text-black font-semibold py-2 rounded-xl hover:opacity-80 transition"
-              >
-                {loadingVisit === place.id ? "Saving..." : "Visit"}
-              </button>
-            </motion.div>
-          ))
-        )}
-      </motion.div>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <button
+                  onClick={() => selectRoute(allPlaceIds)}
+                  className={`btn ${showAllConnections ? "btn-active" : "bg-white/5 text-white/80"}`}
+                >
+                  All attractions
+                </button>
+                {ROUTES.map((route) => (
+                  <button
+                    key={route.id}
+                    onClick={() => selectRoute(route.placeIds)}
+                    className={`btn ${
+                      activeRouteIds.join("-") === route.placeIds.join("-")
+                        ? "btn-active"
+                        : "bg-white/5 text-white/80"
+                    }`}
+                  >
+                    {route.title}
+                  </button>
+                ))}
+              </div>
 
-      {/* BACK */}
-      <div className="px-6 pb-10">
-        <button
-          onClick={() => router.push("/")}
-          className="text-white/40 hover:text-white transition"
-        >
-          ← Back to Home
-        </button>
-      </div>
+              <div className="mt-6 grid gap-3">
+                {(showAllConnections ? PLACES : PLACES.filter((place) => activeRouteIds.includes(place.id))).map(
+                  (place) => (
+                    <button
+                      key={place.id}
+                      onClick={() => setFocusedPlaceId(place.id)}
+                      className={`rounded-2xl border p-4 text-left transition ${
+                        focusedPlaceId === place.id
+                          ? "border-white/30 bg-white/12"
+                          : "border-white/10 bg-white/5 hover:border-white/20"
+                      }`}
+                    >
+                      <span className="text-xs uppercase tracking-[0.2em] text-white/40">
+                        {place.region}
+                      </span>
+                      <span className="mt-1 block font-semibold text-white">{place.name}</span>
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {PLACES.map((place, index) => (
+              <motion.button
+                key={place.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.04 }}
+                onClick={() => setFocusedPlaceId(place.id)}
+                className={`glass-card p-5 text-left ${
+                  focusedPlaceId === place.id ? "border-white/30 bg-white/10" : ""
+                }`}
+              >
+                <p className="text-xs uppercase tracking-[0.24em] text-white/40">{place.region}</p>
+                <h3 className="mt-3 text-xl font-semibold">{place.name}</h3>
+                <p className="mt-3 min-h-12 text-sm leading-6 text-white/65">{place.desc}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60">
+                    {place.duration}
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60">
+                    {place.bestTime}
+                  </span>
+                </div>
+              </motion.button>
+            ))}
+          </div>
+        </motion.section>
+      </main>
     </div>
   );
 }
