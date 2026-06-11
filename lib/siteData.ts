@@ -26,6 +26,57 @@ export type RouteTemplate = {
 
 export const PLACES: TravelPlace[] = [
   {
+    id: "aktau",
+    name: "Aktau",
+    region: "Mangystau",
+    desc: "Caspian Sea base city for Mangystau desert routes",
+    category: "city",
+    duration: "1 day",
+    bestTime: "April - October",
+    coordinates: [43.653, 51.197],
+    facts: [
+      "Best city base for Bozzhyra trips",
+      "Use it for supplies and driver-guide pickup",
+      "Caspian sunsets work well before desert travel",
+    ],
+    bio:
+      "Aktau is the practical coastal base for Mangystau: stock up, meet a guide and start remote desert routes with less stress.",
+  },
+  {
+    id: "shakpak-ata",
+    name: "Shakpak-Ata",
+    region: "Mangystau",
+    desc: "Rock-cut mosque and quiet desert heritage stop",
+    category: "culture",
+    duration: "2-3 hours",
+    bestTime: "April - June, September - October",
+    coordinates: [44.441, 51.166],
+    facts: [
+      "Works as a meaningful stop before deeper desert roads",
+      "Respect quiet religious spaces",
+      "Best visited with a local driver-guide",
+    ],
+    bio:
+      "Shakpak-Ata adds cultural depth to a Mangystau route, turning the drive into more than a transfer between viewpoints.",
+  },
+  {
+    id: "sherkala",
+    name: "Sherkala Mountain",
+    region: "Mangystau",
+    desc: "Standalone desert mountain with wide steppe views",
+    category: "desert",
+    duration: "2-4 hours",
+    bestTime: "April - June, September - October",
+    coordinates: [44.239, 52.006],
+    facts: [
+      "Good scenic pause on Mangystau expeditions",
+      "Light changes quickly near sunset",
+      "Avoid climbing without guide advice",
+    ],
+    bio:
+      "Sherkala gives a route a memorable desert silhouette before the wilder scale of Bozzhyra.",
+  },
+  {
     id: "almaty",
     name: "Almaty",
     region: "Almaty",

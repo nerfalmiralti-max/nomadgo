@@ -30,7 +30,12 @@ const emptyForm = {
 };
 
 export default function ProfilePage() {
-  const [mode, setMode] = useState<AuthMode>("login");
+  const [mode, setMode] = useState<AuthMode>(() => {
+    if (typeof window === "undefined") return "login";
+
+    const initialMode = new URLSearchParams(window.location.search).get("mode");
+    return initialMode === "register" ? "register" : "login";
+  });
   const [form, setForm] = useState(emptyForm);
   const [tourist, setTourist] = useState<TouristProfile | null>(null);
   const [message, setMessage] = useState("");
@@ -104,8 +109,8 @@ export default function ProfilePage() {
           <div className="space-y-3">
             <AnimatedTitle text="Tourist Profile" className="text-3xl md:text-4xl" />
             <p className="max-w-3xl leading-8 text-white/70">
-              Sign in with email and password to keep your MangystauTrails routes,
-              visits and travel profile in one place.
+              Log in keeps your saved routes, travel preferences and visited places in one clean
+              profile, so every return to MangystauTrails starts with context instead of a blank map.
             </p>
           </div>
 
@@ -144,17 +149,29 @@ export default function ProfilePage() {
               </div>
             </div>
           ) : (
-            <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
               <div className="glass-card p-8">
                 <p className="text-sm uppercase tracking-[0.24em] text-white/40">Tourist access</p>
                 <h3 className="mt-4 text-2xl font-semibold">
-                  {mode === "login" ? "Sign in to your route space" : "Create your tourist account"}
+                  {mode === "login" ? "Log in to your route space" : "Sign up for smarter trips"}
                 </h3>
                 <p className="mt-4 leading-7 text-white/70">
                   {mode === "login"
-                    ? "Use your email and password to return to your routes and travel history."
-                    : "No account yet? Register with your email, password and travel name to start saving your journey."}
+                    ? "Use your email and password to return to saved routes, visited places and your travel profile."
+                    : "Create an account to save generated routes, remember your travel style and build future Kazakhstan plans faster."}
                 </p>
+
+                <div className="mt-6 grid gap-3">
+                  {[
+                    "Save tourist-friendly routes for later",
+                    "Keep visited places and trip history",
+                    "Use preferences to make route generation lighter",
+                  ].map((item) => (
+                    <div key={item} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
+                      {item}
+                    </div>
+                  ))}
+                </div>
 
                 <div className="mt-6 grid grid-cols-2 gap-2 rounded-3xl border border-white/10 bg-white/5 p-2">
                   {(["login", "register"] as AuthMode[]).map((item) => (
@@ -166,13 +183,27 @@ export default function ProfilePage() {
                       }}
                       className={`btn ${mode === item ? "btn-active" : "bg-white/5 text-white/80"}`}
                     >
-                      {item === "login" ? "Sign in" : "Register"}
+                      {item === "login" ? "Log in" : "Sign up"}
                     </button>
                   ))}
                 </div>
               </div>
 
               <form onSubmit={submitAuth} className="glass-card p-8">
+                <div className="mb-6 flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.24em] text-white/40">
+                      {mode === "login" ? "Welcome back" : "New traveler"}
+                    </p>
+                    <h3 className="mt-3 text-2xl font-semibold">
+                      {mode === "login" ? "Log in" : "Sign up"}
+                    </h3>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/50">
+                    7-day secure session
+                  </div>
+                </div>
+
                 <div className="grid gap-4">
                   {mode === "register" && (
                     <>
@@ -227,7 +258,7 @@ export default function ProfilePage() {
                 )}
 
                 <button disabled={isSubmitting || isLoading} className="btn chat-button mt-6 w-full disabled:opacity-50">
-                  {isSubmitting ? "Please wait..." : mode === "login" ? "Sign in" : "Create account"}
+                  {isSubmitting ? "Please wait..." : mode === "login" ? "Log in" : "Create account"}
                 </button>
               </form>
             </div>
